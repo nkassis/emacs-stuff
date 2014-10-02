@@ -1,20 +1,23 @@
-(setq load-path (cons "~/.emacs.d/python-mode" load-path))
+(load "package")
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+(package-initialize)
 
-(autoload 'python-mode "python-mode" "Python Mode." t)
 
+;; Removing useless things
+(menu-bar-mode -1)
+(tool-bar-mode -1)
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(inferior-lisp-program "lein repl")
- '(inhibit-startup-screen t))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(inhibit-startup-screen t)
+ '(js2-basic-offset 2))
 ;; Color Settings
-(set-foreground-color "white")
-(set-background-color "black")
-
-;;Font settings
-(set-default-font "menlo-medium-r-normal-16")
+;;(set-foreground-color "white")
+;;(set-background-color "black")
 
 (transient-mark-mode 1)
 (global-font-lock-mode 1)
@@ -22,7 +25,6 @@
 (add-hook 'c-mode-hook
 	  '(lambda ()
 	     (c-set-style "linux")))
-
 ;;From Unix Power tools
 ;; Map \C-h to backwards delete
 (define-key global-map "\C-h" 'backward-delete-char)
@@ -37,29 +39,64 @@
 ;; Use \C-x \C-v to "visit" new file
 (define-key global-map "\C-x\C-v" 'find-file-other-window)
 (setq mac-command-key-is-meta nil)
-;; Rails mode
+
 (setq load-path (cons "~/.emacs.d/" load-path))
-;;(setq load-path (cons "~/.emacs.d/rails" load-path))
-;;(require 'find-recursive)
-;;(require 'snippet)
-;;(require 'inf-ruby)
-;;(require 'rails)
 
 
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  )
 
+;; rainbow delimiters
+(global-rainbow-delimiters-mode)
 
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-(when
-    (load
-     (expand-file-name "~/.emacs.d/elpa/package.el"))
-  (package-initialize))
+;; paredit
+(add-hook 'cider-repl-mode-hook 'paredit-mode)
+(add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
+(global-set-key [f7] 'paredit-mode)
+
+;; nrepl
+(add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
+(setq nrepl-popup-stacktraces nil)
+(add-to-list 'same-window-buffer-names "*nrepl*")
+(add-hook 'nrepl-mode-hook 'paredit-mode)
+
+;; Auto complete
+(require 'auto-complete-config)
+(ac-config-default)
+(define-key ac-completing-map "\M-/" 'ac-stop) ; use M-/ to stop completion
+
+;; ac-nrepl
+(require 'ac-nrepl)
+(add-hook 'cider-repl-mode-hook 'ac-nrepl-setup)
+(add-hook 'cider-mode-hook 'ac-nrepl-setup)
+(eval-after-load "auto-complete"
+  '(add-to-list 'ac-modes 'cider-repl-mode))
+
+;; theme
+(load-theme 'solarized-light t)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(auto-save-default nil)
+ '(backup-inhibited t t)
+ '(cursor-type 'bar t)
+ '(column-number-mode t)
+ '(delete-selection-mode t)
+ '(inhibit-startup-screen t)
+ '(initial-scratch-message nil)
+ '(tool-bar-mode nil))
+
+(require 'undo-tree)
+(global-undo-tree-mode)
+
+(show-paren-mode 1)
+
+(defun turn-on-paredit () (paredit-mode 1))
+(add-hook 'clojure-mode-hook 'turn-on-paredit)
