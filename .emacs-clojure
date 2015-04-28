@@ -1,31 +1,23 @@
 (load "package")
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
                          ("melpa" . "http://melpa.milkbox.net/packages/")))
 (package-initialize)
+
 
 ;; Removing useless things
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-
-;; theme
-(load-theme 'zenburn t)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(auto-save-default nil)
- '(backup-inhibited t t)
- '(column-number-mode t)
- '(cursor-type (quote bar))
- '(custom-safe-themes
-   (quote
-    ("f5512c02e0a6887e987a816918b7a684d558716262ac7ee2dd0437ab913eaec6" default)))
- '(delete-selection-mode t)
  '(inhibit-startup-screen t)
- '(initial-scratch-message nil)
  '(js2-basic-offset 2))
+;; Color Settings
+;;(set-foreground-color "white")
+;;(set-background-color "black")
 
 (transient-mark-mode 1)
 (global-font-lock-mode 1)
@@ -59,17 +51,45 @@
  ;; If there is more than one, they won't work right.
  )
 
+;; rainbow delimiters
+(add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
 
 ;; paredit
+(add-hook 'cider-repl-mode-hook 'paredit-mode)
+(add-hook 'cider-repl-mode-hook 'rainbow-delimiters-mode)
 (global-set-key [f7] 'paredit-mode)
 
+;; nrepl
+(add-hook 'nrepl-interaction-mode-hook 'nrepl-turn-on-eldoc-mode)
+(setq nrepl-popup-stacktraces nil)
+(add-to-list 'same-window-buffer-names "*nrepl*")
+(add-hook 'nrepl-mode-hook 'paredit-mode)
 
 ;; Auto complete
 (require 'auto-complete-config)
 (ac-config-default)
 (define-key ac-completing-map "\M-/" 'ac-stop) ; use M-/ to stop completion
 
+;; ac-nrepl
+(require 'ac-nrepl)
+(add-hook 'cider-repl-mode-hook 'ac-nrepl-setup)
+(add-hook 'cider-mode-hook 'ac-nrepl-setup)
+(eval-after-load "auto-complete"
+  '(add-to-list 'ac-modes 'cider-repl-mode))
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(auto-save-default nil)
+ '(backup-inhibited t t)
+ '(cursor-type 'bar t)
+ '(column-number-mode t)
+ '(delete-selection-mode t)
+ '(inhibit-startup-screen t)
+ '(initial-scratch-message nil)
+ '(tool-bar-mode nil))
 
 (require 'undo-tree)
 (global-undo-tree-mode)
