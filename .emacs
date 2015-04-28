@@ -40,7 +40,8 @@
 (define-key global-map "\C-x\C-v" 'find-file-other-window)
 (setq mac-command-key-is-meta nil)
 
-(setq load-path (cons "~/.emacs.d/" load-path))
+(let ((default-directory "~/.emacs.d/elpa/"))
+  (normal-top-level-add-subdirs-to-load-path))
 
 
 (custom-set-faces
@@ -51,7 +52,7 @@
  )
 
 ;; rainbow delimiters
-(global-rainbow-delimiters-mode)
+(add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
 
 ;; paredit
 (add-hook 'cider-repl-mode-hook 'paredit-mode)
@@ -75,9 +76,6 @@
 (add-hook 'cider-mode-hook 'ac-nrepl-setup)
 (eval-after-load "auto-complete"
   '(add-to-list 'ac-modes 'cider-repl-mode))
-
-;; theme
-(load-theme 'solarized-light t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
