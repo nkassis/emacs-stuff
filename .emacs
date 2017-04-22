@@ -69,8 +69,6 @@
 (ac-config-default)
 (define-key ac-completing-map "\M-/" 'ac-stop) ; use M-/ to stop completion
 
-
-
 (require 'undo-tree)
 (global-undo-tree-mode)
 
