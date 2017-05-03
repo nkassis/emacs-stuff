@@ -25,7 +25,10 @@
  '(delete-selection-mode t)
  '(inhibit-startup-screen t)
  '(initial-scratch-message nil)
- '(js2-basic-offset 2))
+ '(js2-basic-offset 2)
+ '(package-selected-packages
+   (quote
+    (jedi flymake-python-pyflakes zenburn-theme undo-tree rainbow-delimiters paredit elpy ac-nrepl))))
 
 (transient-mark-mode 1)
 (global-font-lock-mode 1)
@@ -69,6 +72,8 @@
 (ac-config-default)
 (define-key ac-completing-map "\M-/" 'ac-stop) ; use M-/ to stop completion
 
+
+
 (require 'undo-tree)
 (global-undo-tree-mode)
 
@@ -76,3 +81,10 @@
 
 (defun turn-on-paredit () (paredit-mode 1))
 (add-hook 'clojure-mode-hook 'turn-on-paredit)
+
+(require 'flymake-python-pyflakes)
+(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+
