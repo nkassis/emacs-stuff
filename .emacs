@@ -1,7 +1,9 @@
 (load "package")
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+
+(load "package")
 (package-initialize)
+(add-to-list 'package-archives
+	     '("melpa-stable" . "https://stable.melpa.org/packages/") )t
 
 ;; Removing useless things
 (menu-bar-mode -1)
@@ -28,7 +30,7 @@
  '(js2-basic-offset 2)
  '(package-selected-packages
    (quote
-    (jedi flymake-python-pyflakes zenburn-theme undo-tree rainbow-delimiters paredit elpy ac-nrepl))))
+    (ivy eglot jedi flymake-python-pyflakes zenburn-theme undo-tree rainbow-delimiters paredit elpy ac-nrepl))))
 
 (transient-mark-mode 1)
 (global-font-lock-mode 1)
@@ -62,16 +64,11 @@
  ;; If there is more than one, they won't work right.
  )
 
+;; Company mode
+(add-hook 'after-init-hook 'global-company-mode)
 
 ;; paredit
 (global-set-key [f7] 'paredit-mode)
-
-
-;; Auto complete
-(require 'auto-complete-config)
-(ac-config-default)
-(define-key ac-completing-map "\M-/" 'ac-stop) ; use M-/ to stop completion
-
 
 
 (require 'undo-tree)
@@ -82,9 +79,10 @@
 (defun turn-on-paredit () (paredit-mode 1))
 (add-hook 'clojure-mode-hook 'turn-on-paredit)
 
-(require 'flymake-python-pyflakes)
-(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+(add-hook 'rust-mode 'eglot-ensure)
+(add-hook 'rust-mode-hook
+          (lambda ()
+	    (setq indent-tabs-mode nil)
+	    (setq rust-format-on-save t)))
 
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:complete-on-dot t)
-
+(add-hook 'rust-mode-hook 'cargo-minor-mode)
