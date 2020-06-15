@@ -1,16 +1,20 @@
 (load "package")
-
-(load "package")
 (package-initialize)
 (add-to-list 'package-archives
-	     '("melpa-stable" . "https://stable.melpa.org/packages/") )t
+	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+
+(when (not (package-installed-p 'use-package))
+  (package-refresh-contents)
+  (package-install 'use-package))
 
 ;; Removing useless things
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 
 ;; theme
-(load-theme 'zenburn t)
+(use-package zenburn-theme
+  :config
+  (load-theme 'zenburn t))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -30,7 +34,7 @@
  '(js2-basic-offset 2)
  '(package-selected-packages
    (quote
-    (ivy eglot jedi flymake-python-pyflakes zenburn-theme undo-tree rainbow-delimiters paredit elpy ac-nrepl))))
+    (magit direnv use-package ivy eglot jedi flymake-python-pyflakes zenburn-theme undo-tree rainbow-delimiters paredit elpy))))
 
 (transient-mark-mode 1)
 (global-font-lock-mode 1)
@@ -38,6 +42,7 @@
 (add-hook 'c-mode-hook
 	  '(lambda ()
 	     (c-set-style "linux")))
+
 ;;From Unix Power tools
 ;; Map \C-h to backwards delete
 (define-key global-map "\C-h" 'backward-delete-char)
@@ -53,9 +58,6 @@
 (define-key global-map "\C-x\C-v" 'find-file-other-window)
 (setq mac-command-key-is-meta nil)
 
-(let ((default-directory "~/.emacs.d/elpa/"))
-  (normal-top-level-add-subdirs-to-load-path))
-
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -65,24 +67,64 @@
  )
 
 ;; Company mode
-(add-hook 'after-init-hook 'global-company-mode)
+(use-package company
+  :bind (:map company-active-map
+         ("C-n" . company-select-next)
+         ("C-p" . company-select-previous))
+  :config
+  (setq company-idle-delay 0.3)
+  (global-company-mode t))
 
 ;; paredit
 (global-set-key [f7] 'paredit-mode)
 
+;; undo-tree
+(use-package undo-tree
+  :config
+  (progn
+    (global-undo-tree-mode)))
 
-(require 'undo-tree)
-(global-undo-tree-mode)
-
+;; show parens mode on and no delay
 (show-paren-mode 1)
+(setq show-paren-delay 0)
 
-(defun turn-on-paredit () (paredit-mode 1))
-(add-hook 'clojure-mode-hook 'turn-on-paredit)
+;; Better handling of paranthesis when writing Lisps.
+(use-package paredit
+  :ensure t
+  :init
+  (add-hook 'clojure-mode-hook #'enable-paredit-mode)
+  (add-hook 'cider-repl-mode-hook #'enable-paredit-mode)
+  (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+  (add-hook 'ielm-mode-hook #'enable-paredit-mode)
+  (add-hook 'lisp-mode-hook #'enable-paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+  (add-hook 'scheme-mode-hook #'enable-paredit-mode)
+  :config
+  (show-paren-mode t)
+  :bind (("M-[" . paredit-wrap-square)
+         ("M-{" . paredit-wrap-curly))
+  :diminish nil)
 
-(add-hook 'rust-mode 'eglot-ensure)
+;; eglot language server
+(use-package eglot
+  :ensure t)
+
 (add-hook 'rust-mode-hook
           (lambda ()
 	    (setq indent-tabs-mode nil)
 	    (setq rust-format-on-save t)))
 
 (add-hook 'rust-mode-hook 'cargo-minor-mode)
+
+(use-package direnv
+  :init
+  (add-hook 'prog-mode-hook #'direnv-update-environment)
+  :config
+  (direnv-mode))
+
+;; Git integration for Emacs
+(use-package magit
+  :ensure t
+  :bind ("C-x g" . magit-status))
+
